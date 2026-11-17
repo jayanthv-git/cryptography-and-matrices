@@ -189,3 +189,21 @@ def explain_decryption(ciphertext: str, key: list[list[int]] | None = None) -> d
             "and padding cannot be identified without extra metadata."
         ),
     }
+
+
+def explain_cipher(text: str, key: list[list[int]], operation: str,
+                   preserve_formatting: bool = False) -> dict:
+    """Add an optional portable layout to the unchanged numeric explanation."""
+    from backend.core.text_formatting import preserve_layout
+
+    if operation not in ("encrypt", "decrypt"):
+        raise CipherError("Operation must be encrypt or decrypt.")
+    if type(preserve_formatting) is not bool:
+        raise CipherError("Preserve formatting must be a boolean.")
+    result = (explain_encryption if operation == "encrypt" else explain_decryption)(text, key)
+    letters = result["ciphertext" if operation == "encrypt" else "plaintext"]
+    return {
+        **result,
+        "preserve_formatting": preserve_formatting,
+        "display_output": preserve_layout(text, letters) if preserve_formatting else letters,
+    }

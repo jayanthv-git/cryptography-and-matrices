@@ -20,6 +20,8 @@ import {
 export function CipherStudio() {
   const [mode, setMode] = useState<Mode>("encrypt");
   const [text, setText] = useState("HELP");
+  const [preserveFormatting, setPreserveFormatting] = useState(true);
+  const inputLimit = mode === "encrypt" ? 2000 : 2001;
   const [key, setKey] = useState(DEFAULT_KEY);
   const task = useTask<CipherResult>();
   const change = (action: () => void) => {
@@ -27,11 +29,7 @@ export function CipherStudio() {
     task.clear();
   };
   const result = task.data;
-  const output = result
-    ? result.operation === "encrypt"
-      ? result.ciphertext
-      : result.plaintext || ""
-    : "";
+  const output = result?.display_output ?? "";
   return (
     <>
       <PageHeader
@@ -47,7 +45,12 @@ export function CipherStudio() {
           onSubmit={(e) => {
             e.preventDefault();
             void task.run(() =>
-              api.cipher({ text, key: readKey(key), operation: mode }),
+              api.cipher({
+                text,
+                key: readKey(key),
+                operation: mode,
+                preserve_formatting: preserveFormatting,
+              }),
             );
           }}
         >
@@ -61,14 +64,34 @@ export function CipherStudio() {
           <textarea
             id="cipher-text"
             value={text}
-            maxLength={2000}
+            maxLength={inputLimit}
             onChange={(e) => change(() => setText(e.target.value))}
             placeholder="Enter a message…"
           />
           <div className="input-caption">
             <span>ASCII A–Z · case insensitive</span>
-            <span>{text.length}/2,000</span>
+            <span>
+              {text.length}/{inputLimit.toLocaleString("en-US")}
+            </span>
           </div>
+          <label className="format-toggle">
+            <input
+              type="checkbox"
+              checked={preserveFormatting}
+              onChange={(e) =>
+                change(() => setPreserveFormatting(e.target.checked))
+              }
+              aria-describedby="formatting-help"
+            />
+            Preserve spacing and punctuation
+          </label>
+          <p className="note formatting-help" id="formatting-help">
+            {preserveFormatting
+              ? "Spaces, line breaks, and all non-A–Z characters stay unchanged and unencrypted. Copy the complete formatted ciphertext to retain its layout when decrypting."
+              : "Only A–Z letters are output. Spaces and other characters are removed."}
+            {mode === "decrypt" &&
+              " Spaces already removed from older ciphertext cannot be recovered automatically."}
+          </p>
           <KeyEditor values={key} onChange={(v) => change(() => setKey(v))} />
           <div className="actions">
             <button
@@ -89,6 +112,7 @@ export function CipherStudio() {
               onClick={() => {
                 setMode("encrypt");
                 setText("HELP");
+                setPreserveFormatting(true);
                 setKey(DEFAULT_KEY);
                 task.clear();
               }}
@@ -99,8 +123,10 @@ export function CipherStudio() {
           </div>
           <ErrorNotice error={task.error} />
           <p className="note">
-            Only ASCII letters are retained. Encryption pads an odd-length
-            message with X; decryption keeps trailing X.
+            Letters are uppercased; only ASCII A–Z enters the matrix
+            calculation. An odd letter count adds one extra ciphertext letter at
+            the end. Decryption keeps the resulting trailing X because it may be
+            genuine.
           </p>
         </form>
         <section
@@ -130,7 +156,11 @@ export function CipherStudio() {
                   <dd>{result.normalized ?? result.normalized_ciphertext}</dd>
                 </div>
                 <div>
-                  <dt>Removed characters</dt>
+                  <dt>
+                    {result.preserve_formatting
+                      ? "Kept unencrypted"
+                      : "Removed characters"}
+                  </dt>
                   <dd>
                     {result.removed_characters
                       ? JSON.stringify(result.removed_characters)
@@ -221,7 +251,12 @@ export function Playground() {
     setBlockIndex(0);
     const timer = setTimeout(() => {
       void task.run(() =>
-        api.cipher({ text, key: readKey(key), operation: mode }),
+        api.cipher({
+          text,
+          key: readKey(key),
+          operation: mode,
+          preserve_formatting: false,
+        }),
       );
     }, 250);
     return () => clearTimeout(timer);

@@ -112,7 +112,7 @@ npm run format
 npm run typecheck
 ```
 
-The original **66 tests** passed at baseline. The expanded suite has **117 passing
+The original **66 tests** passed at baseline. The expanded suite has **133 passing
 Python tests**, covering the engine, API validation, Unicode, recovery, experiments,
 and survey parsing. Type checking and the production build pass. The installed
 Starlette TestClient emits an upstream deprecation warning for its httpx adapter;
@@ -134,11 +134,31 @@ For HI: `[7, 8]ᵀ → [45, 54]ᵀ → [19, 2]ᵀ → TC`.
 Other tested examples are OK → UA, GO → IE, HELP → HIAT,
 MATRIX → KYETPB, CRYPTO → FLNTVE, and CAT → GEWX (padded CATX).
 
-Only original ASCII A–Z/a–z characters are retained. Case is normalized, and all
-removed characters are disclosed. Unicode letters are not transliterated or
-expanded: for example, ß is removed, not converted to SS. Empty normalized input
+Only original ASCII A–Z/a–z characters enter the matrix calculation. Case is
+normalized, and all characters excluded from the calculation are disclosed. Unicode letters are not transliterated or
+expanded: for example, ß is excluded from the cipher, not converted to SS. Empty normalized input
 is rejected. Encryption appends X for odd lengths. Decryption rejects odd-length
 normalized ciphertext and preserves every trailing X because it may be genuine.
+
+Cipher Studio enables **Preserve spacing and punctuation** by default. In this
+mode, calculated letters replace the original ASCII letter slots; spaces, repeated
+spaces, tabs, line breaks, punctuation, digits, and non-ASCII characters remain
+unchanged and **unencrypted**. Copy the complete formatted ciphertext and leave the
+option enabled when decrypting. Its layout travels with the ciphertext, without
+stored plaintext or hidden browser state. Letters still return uppercase.
+
+For example, `Hello world!` decrypts to `HELLO WORLD!`. If padding is needed,
+the extra encrypted letter is appended after the original layout: `cat!` encrypts
+to `GEW!X` and decrypts to `CAT!X`. Padding X is never silently removed. Disabling
+the option produces the original A–Z-only output. Word boundaries already removed
+from older ciphertext cannot be recovered automatically.
+
+The API keeps its existing default (formatting disabled). Send
+`"preserve_formatting": true` to `/api/cipher` to enable it. `display_output` holds
+the display/copy result; `ciphertext`, `plaintext`, and block calculations retain
+their existing mathematical meanings. The API returns `preserve_formatting` so
+clients can label excluded characters accurately. Playground and experiments
+continue using normalized letter streams.
 
 Keys must be exactly 2×2 integer matrices, with `gcd(det K, 26) = 1`. Booleans,
 strings, floats (including JSON `3.0`), and fractions are rejected. API entries
@@ -190,7 +210,9 @@ have no HTTP dependencies.
 | `POST /api/survey` | `{ "csv": "awareness\\nhigh\\n" }` (CSV string with actual newlines) |
 | `GET /api/survey/template` | Download a headers-only CSV template |
 
-Cipher input is bounded to 2,000 characters; fixed experiment plaintext to 200.
+Cipher plaintext is bounded to 2,000 characters; ciphertext accepts up to 2,001
+to allow the complete formatted output plus padding. Fixed experiment plaintext
+is bounded to 200 characters.
 The transport rejects bodies above 1.1 MB before JSON parsing. Validation errors
 use HTTP 422; excessive bodies use HTTP 413. Error bodies consistently have:
 

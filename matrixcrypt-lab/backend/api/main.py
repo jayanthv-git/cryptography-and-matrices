@@ -10,7 +10,7 @@ from backend.api.models import (
 )
 from backend.core.hill_cipher import CipherError, validate_key
 from backend.core.matrix_operations import MatrixError
-from backend.core.explanation_engine import explain_encryption, explain_decryption
+from backend.core.explanation_engine import explain_cipher
 from backend.core.cryptanalysis import recover_key
 from backend.core.experiments import run_experiments
 from backend.core.survey import analyze_survey, SCHEMA
@@ -71,7 +71,7 @@ def key_validate(body: KeyRequest):
 
 @app.post("/api/cipher", response_model=CipherResponse, response_model_exclude_none=True)
 def cipher(body: CipherRequest):
-    return (explain_encryption if body.operation == "encrypt" else explain_decryption)(body.text, body.key)
+    return explain_cipher(**body.model_dump())
 
 @app.post("/api/recover", response_model=RecoveryResponse)
 def recovery(body: RecoveryRequest):

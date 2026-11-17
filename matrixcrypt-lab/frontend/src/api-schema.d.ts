@@ -182,9 +182,18 @@ export interface components {
        * @enum {string}
        */
       operation: "encrypt" | "decrypt";
+      /**
+       * Preserve Formatting
+       * @default false
+       */
+      preserve_formatting: boolean;
     };
     /** CipherResponse */
     CipherResponse: {
+      /** Preserve Formatting */
+      preserve_formatting: boolean;
+      /** Display Output */
+      display_output: string;
       /**
        * Operation
        * @enum {string}

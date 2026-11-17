@@ -1,5 +1,5 @@
 from typing import Annotated, Literal
-from pydantic import BaseModel, ConfigDict, Field, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictBool, model_validator
 
 Entry = Annotated[StrictInt, Field(ge=-1_000_000, le=1_000_000)]
 Row = Annotated[list[Entry], Field(min_length=2, max_length=2)]
@@ -12,8 +12,15 @@ class KeyRequest(Contract):
     key: Matrix = Field(default_factory=lambda: [[3, 3], [2, 5]])
 
 class CipherRequest(KeyRequest):
-    text: str = Field(min_length=1, max_length=2000)
+    text: str = Field(min_length=1, max_length=2001)
     operation: Literal["encrypt", "decrypt"] = "encrypt"
+    preserve_formatting: StrictBool = False
+
+    @model_validator(mode="after")
+    def plaintext_limit(self):
+        if self.operation == "encrypt" and len(self.text) > 2000:
+            raise ValueError("Plaintext must contain at most 2,000 characters.")
+        return self
 
 class KeyReport(Contract):
     valid: bool
@@ -75,6 +82,8 @@ class InverseSteps(Contract):
     explanation: str
 
 class CipherResponse(Contract):
+    preserve_formatting: bool
+    display_output: str
     operation: Literal["encrypt", "decrypt"]
     original: str | None = None
     normalized: str | None = None

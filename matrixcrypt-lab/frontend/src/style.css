@@ -2225,3 +2225,25 @@ details > summary::marker {
     font-size: clamp(46px, 15.5vw, 76px);
   }
 }
+
+.format-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  line-height: 1.6;
+  cursor: pointer;
+}
+.format-toggle input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--graphite);
+}
+.formatting-help {
+  margin-top: 8px;
+}
+.cipher-output {
+  white-space: pre-wrap;
+}

@@ -5,7 +5,13 @@ import { ErrorNotice, Loading, Matrix, useTask } from "./shared";
 export function Home() {
   const task = useTask<CipherResult>();
   useEffect(() => {
-    void task.run(() => api.cipher({ text: "HI", operation: "encrypt" }));
+    void task.run(() =>
+      api.cipher({
+        text: "HI",
+        operation: "encrypt",
+        preserve_formatting: false,
+      }),
+    );
   }, [task.run]);
   const b = task.data?.blocks[0];
   return (

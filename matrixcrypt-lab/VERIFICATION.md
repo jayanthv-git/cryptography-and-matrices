@@ -56,3 +56,19 @@ focus styling and reduced-motion CSS are included.
 Browser checks were performed with the Codex in-app browser on macOS. These do
 not substitute for cross-browser or screen-reader certification; Firefox,
 standalone Safari, and physical mobile devices were not separately tested.
+
+## Spacing preservation follow-up
+
+- The expanded suite now has **133 passing tests**. New cases cover formatted
+  ciphertext copied into a separate request; repeated spaces, tabs, newlines,
+  punctuation, digits, and Unicode; genuine/trailing padding X; opt-out and old
+  ciphertext; strict boolean validation; and the 2,000-character input boundary
+  whose padded formatted output requires 2,001 ciphertext characters.
+- Browser: `Hello  world!\nHI` encrypted to `HIOZE  IPJQL!\nTC`; Copy preserved
+  both spaces and the newline. After a full page reload, decrypting that copied
+  ciphertext returned `HELLO  WORLD!\nHI` with no original-message metadata.
+- Disabling formatting cleared the prior result and yielded `HELLOWORLDHI`.
+  Re-enabling restored the supplied ciphertext layout. The output preserves
+  whitespace visually and labels retained non-A–Z characters as unencrypted.
+- TypeScript/production build and formatting checks passed. Existing user-started
+  frontend/backend processes were reused and left running.
