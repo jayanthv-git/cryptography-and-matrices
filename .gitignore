@@ -33,3 +33,11 @@ secrets.json
 *.swp
 *.swo
 *.log
+
+# Frontend dependencies and test artifacts
+node_modules/
+playwright-report/
+test-results/
+*.tsbuildinfo
+# Local uploaded data
+uploads/

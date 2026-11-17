@@ -37,7 +37,7 @@ def _split_letters(text: str) -> tuple[str, str]:
     removed: list[str] = []
     for character in text:
         upper = character.upper()
-        if "A" <= upper <= "Z":
+        if character.isascii() and "A" <= upper <= "Z":
             kept.append(upper)
         else:
             removed.append(character)
@@ -57,7 +57,7 @@ def text_to_numbers(text: str) -> list[int]:
     numbers: list[int] = []
     for index, character in enumerate(raw):
         upper = character.upper()
-        if not ("A" <= upper <= "Z"):
+        if not (character.isascii() and "A" <= upper <= "Z"):
             raise CipherError(
                 f"Character {character!r} at position {index} is not a letter A–Z. "
                 "Normalize the text before converting it to numbers."
