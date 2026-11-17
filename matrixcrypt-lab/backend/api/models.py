@@ -15,6 +15,7 @@ class CipherRequest(KeyRequest):
     text: str = Field(min_length=1, max_length=2001)
     operation: Literal["encrypt", "decrypt"] = "encrypt"
     preserve_formatting: StrictBool = False
+    remove_padding: StrictBool = False
 
     @model_validator(mode="after")
     def plaintext_limit(self):
@@ -84,6 +85,7 @@ class InverseSteps(Contract):
 class CipherResponse(Contract):
     preserve_formatting: bool
     display_output: str
+    padding_removed: bool
     operation: Literal["encrypt", "decrypt"]
     original: str | None = None
     normalized: str | None = None

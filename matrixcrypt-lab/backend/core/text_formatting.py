@@ -18,3 +18,17 @@ def preserve_layout(source: str, transformed_letters: str) -> str:
         for character in source
     ]
     return "".join(output) + "".join(letters)
+
+
+def remove_one_padding_x(display_text: str) -> str:
+    """Remove the last ASCII letter only when it is X; keep all separators.
+
+    This is an explicit user assumption, never automatic padding detection.
+    """
+    for index in range(len(display_text) - 1, -1, -1):
+        character = display_text[index]
+        if character.isascii() and character.isalpha():
+            if character != "X":
+                break
+            return display_text[:index] + display_text[index + 1:]
+    raise CipherError("The decrypted message does not end in X. Turn off 'Remove one padding X' and decrypt again.")

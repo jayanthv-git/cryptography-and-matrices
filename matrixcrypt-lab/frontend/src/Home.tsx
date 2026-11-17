@@ -10,6 +10,7 @@ export function Home() {
         text: "HI",
         operation: "encrypt",
         preserve_formatting: false,
+        remove_padding: false,
       }),
     );
   }, [task.run]);

@@ -192,18 +192,31 @@ def explain_decryption(ciphertext: str, key: list[list[int]] | None = None) -> d
 
 
 def explain_cipher(text: str, key: list[list[int]], operation: str,
-                   preserve_formatting: bool = False) -> dict:
+                   preserve_formatting: bool = False, remove_padding: bool = False) -> dict:
     """Add an optional portable layout to the unchanged numeric explanation."""
-    from backend.core.text_formatting import preserve_layout
+    from backend.core.text_formatting import preserve_layout, remove_one_padding_x
 
     if operation not in ("encrypt", "decrypt"):
         raise CipherError("Operation must be encrypt or decrypt.")
     if type(preserve_formatting) is not bool:
         raise CipherError("Preserve formatting must be a boolean.")
+    if type(remove_padding) is not bool:
+        raise CipherError("Remove padding must be a boolean.")
+    if remove_padding and operation != "decrypt":
+        raise CipherError("Padding removal is only available for decryption.")
     result = (explain_encryption if operation == "encrypt" else explain_decryption)(text, key)
     letters = result["ciphertext" if operation == "encrypt" else "plaintext"]
+    display_output = preserve_layout(text, letters) if preserve_formatting else letters
+    if remove_padding:
+        display_output = remove_one_padding_x(display_output)
+        result["padding_note"] = (
+            "One trailing X was removed from the display at your request. "
+            "The full plaintext and block calculations retain it. "
+            "This assumes the sender added padding; it does not detect padding."
+        )
     return {
         **result,
         "preserve_formatting": preserve_formatting,
-        "display_output": preserve_layout(text, letters) if preserve_formatting else letters,
+        "padding_removed": remove_padding,
+        "display_output": display_output,
     }

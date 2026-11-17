@@ -21,6 +21,7 @@ export function CipherStudio() {
   const [mode, setMode] = useState<Mode>("encrypt");
   const [text, setText] = useState("HELP");
   const [preserveFormatting, setPreserveFormatting] = useState(true);
+  const [removePadding, setRemovePadding] = useState(false);
   const inputLimit = mode === "encrypt" ? 2000 : 2001;
   const [key, setKey] = useState(DEFAULT_KEY);
   const task = useTask<CipherResult>();
@@ -50,13 +51,22 @@ export function CipherStudio() {
                 key: readKey(key),
                 operation: mode,
                 preserve_formatting: preserveFormatting,
+                remove_padding: removePadding,
               }),
             );
           }}
         >
           <div className="section-heading">
             <span className="eyebrow">THE INPUT</span>
-            <ModeSwitch mode={mode} setMode={(m) => change(() => setMode(m))} />
+            <ModeSwitch
+              mode={mode}
+              setMode={(m) =>
+                change(() => {
+                  setMode(m);
+                  setRemovePadding(false);
+                })
+              }
+            />
           </div>
           <label className="field-label" htmlFor="cipher-text">
             {mode === "encrypt" ? "Plaintext" : "Ciphertext"}
@@ -65,7 +75,12 @@ export function CipherStudio() {
             id="cipher-text"
             value={text}
             maxLength={inputLimit}
-            onChange={(e) => change(() => setText(e.target.value))}
+            onChange={(e) =>
+              change(() => {
+                setText(e.target.value);
+                setRemovePadding(false);
+              })
+            }
             placeholder="Enter a message…"
           />
           <div className="input-caption">
@@ -92,7 +107,36 @@ export function CipherStudio() {
             {mode === "decrypt" &&
               " Spaces already removed from older ciphertext cannot be recovered automatically."}
           </p>
-          <KeyEditor values={key} onChange={(v) => change(() => setKey(v))} />
+          {mode === "decrypt" && (
+            <>
+              <label className="format-toggle">
+                <input
+                  type="checkbox"
+                  checked={removePadding}
+                  onChange={(e) =>
+                    change(() => setRemovePadding(e.target.checked))
+                  }
+                  aria-describedby="padding-help"
+                />
+                Remove one padding X
+              </label>
+              <p className="note formatting-help" id="padding-help">
+                Select only if you know the sender added an X for padding. This
+                removes one final X from the displayed and copied message, even
+                after a line break. A genuine final X would also be removed.
+                Calculation steps keep the complete decrypted letter stream.
+              </p>
+            </>
+          )}
+          <KeyEditor
+            values={key}
+            onChange={(v) =>
+              change(() => {
+                setKey(v);
+                setRemovePadding(false);
+              })
+            }
+          />
           <div className="actions">
             <button
               className="button primary"
@@ -113,6 +157,7 @@ export function CipherStudio() {
                 setMode("encrypt");
                 setText("HELP");
                 setPreserveFormatting(true);
+                setRemovePadding(false);
                 setKey(DEFAULT_KEY);
                 task.clear();
               }}
@@ -125,8 +170,8 @@ export function CipherStudio() {
           <p className="note">
             Letters are uppercased; only ASCII A–Z enters the matrix
             calculation. An odd letter count adds one extra ciphertext letter at
-            the end. Decryption keeps the resulting trailing X because it may be
-            genuine.
+            the end. Decryption keeps trailing X by default; remove it only when
+            you know it was padding.
           </p>
         </form>
         <section
@@ -174,7 +219,11 @@ export function CipherStudio() {
                       ? result.padding_count
                         ? `Added ${result.padding_added} → ${result.padded_plaintext}`
                         : "None needed"
-                      : "Trailing X preserved"}
+                      : result.padding_removed
+                        ? "One X removed by your choice"
+                        : result.plaintext?.endsWith("X")
+                          ? "Trailing X preserved"
+                          : "No trailing X"}
                   </dd>
                 </div>
               </dl>
@@ -202,6 +251,9 @@ export function CipherStudio() {
               {result.blocks.length} BLOCKS · COLUMN VECTORS
             </span>
           </div>
+          {result.padding_removed && (
+            <p className="note">{result.padding_note}</p>
+          )}
           {result.inverse_steps && (
             <InverseDetail steps={result.inverse_steps} />
           )}
@@ -256,6 +308,7 @@ export function Playground() {
           key: readKey(key),
           operation: mode,
           preserve_formatting: false,
+          remove_padding: false,
         }),
       );
     }, 250);

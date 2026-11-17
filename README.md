@@ -112,7 +112,7 @@ npm run format
 npm run typecheck
 ```
 
-The original **66 tests** passed at baseline. The expanded suite has **133 passing
+The original **66 tests** passed at baseline. The expanded suite has **149 passing
 Python tests**, covering the engine, API validation, Unicode, recovery, experiments,
 and survey parsing. Type checking and the production build pass. The installed
 Starlette TestClient emits an upstream deprecation warning for its httpx adapter;
@@ -152,6 +152,19 @@ the extra encrypted letter is appended after the original layout: `cat!` encrypt
 to `GEW!X` and decrypts to `CAT!X`. Padding X is never silently removed. Disabling
 the option produces the original A–Z-only output. Word boundaries already removed
 from older ciphertext cannot be recovered automatically.
+
+For known padding, Cipher Studio's Decrypt mode provides **Remove one padding X**
+(default off). Select it after entering the ciphertext, then decrypt. It removes
+exactly one final ASCII X from the displayed/copied result while preserving spaces,
+line breaks, and punctuation around it. This is your explicit assumption that the
+sender added padding, not automatic detection; a genuine final X would also be
+removed. The choice resets on message/key/mode changes. A result without a final
+X is rejected with an actionable error when removal is requested.
+
+The full `plaintext` and block calculations still include that X. API clients can
+send `"remove_padding": true` with `"operation": "decrypt"`; `padding_removed`
+records the display adjustment and `padding_note` explains it. Requesting removal
+on encryption is rejected. Normal decryption continues preserving genuine final X.
 
 The API keeps its existing default (formatting disabled). Send
 `"preserve_formatting": true` to `/api/cipher` to enable it. `display_output` holds

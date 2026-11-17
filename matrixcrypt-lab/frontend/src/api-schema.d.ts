@@ -187,6 +187,11 @@ export interface components {
        * @default false
        */
       preserve_formatting: boolean;
+      /**
+       * Remove Padding
+       * @default false
+       */
+      remove_padding: boolean;
     };
     /** CipherResponse */
     CipherResponse: {
@@ -194,6 +199,8 @@ export interface components {
       preserve_formatting: boolean;
       /** Display Output */
       display_output: string;
+      /** Padding Removed */
+      padding_removed: boolean;
       /**
        * Operation
        * @enum {string}

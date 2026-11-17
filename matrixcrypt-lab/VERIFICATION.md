@@ -72,3 +72,18 @@ standalone Safari, and physical mobile devices were not separately tested.
   whitespace visually and labels retained non-A–Z characters as unencrypted.
 - TypeScript/production build and formatting checks passed. Existing user-started
   frontend/backend processes were reused and left running.
+
+## Explicit padding removal follow-up
+
+- **149 Python tests pass**. New regression cases cover one-X removal, spaces and
+  trailing newlines, punctuation/Unicode suffixes, original words ending in X,
+  unchanged complete calculation blocks, strict request validation, and rejection
+  when the decrypted message has no final X.
+- Browser: the user's formatted screenshot ciphertext decrypted to the original
+  sentence plus two newlines and X by default. With **Remove one padding X**
+  selected, display and clipboard contained that sentence and the two newlines
+  only; the calculation still ended in the correct BX block.
+- Entering new ciphertext reset the removal choice. Selecting removal for TC
+  (which decrypts to HI) showed an actionable error instead of deleting a letter.
+- The option defaults off and clearly states that it assumes known padding.
+  TypeScript/production build and formatting checks passed.
