@@ -87,3 +87,17 @@ standalone Safari, and physical mobile devices were not separately tested.
   (which decrypts to HI) showed an actionable error instead of deleting a letter.
 - The option defaults off and clearly states that it assumes known padding.
   TypeScript/production build and formatting checks passed.
+
+## Deployment preparation — 2026-11-20
+
+- Added `backend.production:create_app`: the built frontend and original API share
+  one origin. Missing frontend builds fail at startup; API errors remain JSON;
+  unknown assets/private source files return 404.
+- Python suite: **153 passed** (one existing upstream TestClient deprecation warning).
+- Frontend type checking, production build, and formatting check passed.
+- Local production browser check at `http://127.0.0.1:8080`: Command Center
+  calculated HI → TC; Cipher Studio calculated `Hello world!` → `HIOZE IPJQL!`;
+  navigation to Research showed the updated hosted upload disclosure.
+- Render Blueprint prepared for a free Python service with manual deployments.
+  Hosted deployment and remote browser checks are **pending account connection**;
+  these local checks do not establish that an internet-hosted site is live.

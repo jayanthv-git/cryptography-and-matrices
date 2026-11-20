@@ -63,10 +63,11 @@ export function Research() {
             information is neither needed nor accepted.
           </p>
           <p className="note">
-            CSV contents are sent to your locally running Python API and
-            processed in memory. The application does not save raw uploads,
-            responses, or reports to disk or browser storage. Reloading or
-            clearing removes the displayed report.
+            CSV contents are sent to this website’s Python server and processed
+            in memory. When hosted online, uploads leave your device. The
+            application does not save raw uploads, responses, or reports to disk
+            or browser storage. Reloading or clearing removes the displayed
+            report.
           </p>
         </div>
         <div className="upload-area">

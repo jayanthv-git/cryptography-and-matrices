@@ -1,6 +1,6 @@
 # MatrixCrypt Lab
 
-A complete local mathematics laboratory for the classical 2×2 Hill cipher. React,
+A complete mathematics laboratory for the classical 2×2 Hill cipher. React,
 Vite, and TypeScript provide six responsive pages; FastAPI delegates every cipher
 calculation to the original exact-integer Python engine.
 
@@ -79,8 +79,44 @@ API_PROXY_TARGET=http://127.0.0.1:8001 npm run dev -- --port 5173 --strictPort
 
 The same variable works for `npm run preview`. It is read by Vite's server
 configuration, not exposed in the client bundle. No `.env` file is required.
-Both servers bind to loopback by default. This is a local teaching application;
-public hosting and production server hardening are outside its scope.
+Both development servers bind to loopback by default. For hosting, use the
+single-server setup below instead of Vite's development or preview server.
+
+## Deploy frontend and backend together
+
+The repository-root `render.yaml` defines one Render Python web service. It builds
+the React frontend, runs the Python tests and TypeScript checks, then serves both
+the built pages and `/api` from the same HTTPS origin. No CORS settings, database,
+Docker, API keys, or frontend API URL are required. The existing Python engine
+remains authoritative.
+
+Connect a Render account and authorize its GitHub integration to read this private
+repository, then create a Blueprint from `main` using `render.yaml`. The service
+uses the **free** instance plan; no paid instance is configured. Render assigns the
+live URL after deployment. Later deployments are manual (`autoDeployTrigger: off`).
+The deployment is not live until Render reports success and the hosted health and
+application checks pass.
+
+[Render's free service](https://render.com/docs/free) sleeps after 15 idle minutes
+and can take about a minute to wake. Monthly usage limits apply. It is suitable
+for this educational demonstration; an always-on paid upgrade is optional and
+not part of this configuration. Keep the repository private: only the website and
+its API become publicly accessible. Never submit real secrets or identifying survey data.
+
+To check the same hosting setup locally after installation:
+
+```sh
+cd "/Users/jayanthv/Desktop/Cryptography and Matrices/matrixcrypt-lab/frontend"
+npm run build
+cd ..
+.venv/bin/python -m uvicorn backend.production:create_app --factory --host 127.0.0.1 --port 8080 --no-access-log
+```
+
+Open <http://127.0.0.1:8080>. The production entry point fails clearly if the
+frontend build is missing. Render uses its provided `$PORT` and binds to
+`0.0.0.0`; HTTPS is terminated by Render. Application access logs are disabled;
+hosting infrastructure can still retain ordinary operational/request metadata.
+Neither application errors nor application logs include submitted request bodies.
 
 ## Verify and build
 
@@ -112,8 +148,8 @@ npm run format
 npm run typecheck
 ```
 
-The original **66 tests** passed at baseline. The expanded suite has **149 passing
-Python tests**, covering the engine, API validation, Unicode, recovery, experiments,
+The original **66 tests** passed at baseline. The expanded suite has **153 passing
+Python tests**, covering the production server, engine, API validation, Unicode, recovery, experiments,
 and survey parsing. Type checking and the production build pass. The installed
 Starlette TestClient emits an upstream deprecation warning for its httpx adapter;
 it does not affect the checks. Browser verification and repeatable manual scenarios
@@ -269,8 +305,10 @@ Errors identify the line/field where possible. `unique` means distinct passwords
 across accounts, `reused` means repeated passwords, and `mixed` means a combination.
 
 No names, emails, IDs, timestamps, or other identifying data are required or
-accepted as columns. The browser sends the CSV to **your local Python process**,
-which parses it in memory and returns only aggregate counts. The application
+accepted as columns. The browser sends the CSV to **the application's Python server**,
+which parses it in memory and returns only aggregate counts. With local execution
+this is your computer; on a hosted deployment the upload leaves your device and is
+processed by the hosting provider's server. The application
 never writes raw uploads to disk, logs request bodies, or uses localStorage for
 survey data. Clear, reload, or leave the page to discard its in-memory report.
 Only user-requested CSV downloads are written by the browser.
