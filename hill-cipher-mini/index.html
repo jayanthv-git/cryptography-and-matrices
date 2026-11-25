@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hill Cipher Mini Lab</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <p class="eyebrow">MATRIXCRYPT / MINI LAB</p>
+        <h1>Hill cipher, made tangible.</h1>
+        <p class="lede">Try a classical 2×2 matrix cipher and see the arithmetic behind every result.</p>
+      </header>
+      <section class="card controls" aria-labelledby="controls-title">
+        <div class="section-heading"><div><p class="eyebrow">01 / SETUP</p><h2 id="controls-title">Choose a key and message</h2></div><button id="example-button" class="button button-ghost" type="button">Load example</button></div>
+        <div class="grid">
+          <label class="field"><span>Message</span><textarea id="message" rows="3" spellcheck="false">HELP</textarea><small>Letters A–Z are used; spaces and punctuation are ignored.</small></label>
+          <fieldset class="key-field"><legend>Key matrix</legend><div class="matrix" aria-label="2 by 2 key matrix"><input class="matrix-input" type="number" value="3" aria-label="Key row 1 column 1" /><input class="matrix-input" type="number" value="3" aria-label="Key row 1 column 2" /><input class="matrix-input" type="number" value="2" aria-label="Key row 2 column 1" /><input class="matrix-input" type="number" value="5" aria-label="Key row 2 column 2" /></div><small id="key-status">Checking key…</small></fieldset>
+        </div>
+        <div class="actions"><button id="encrypt-button" class="button button-primary" type="button">Encrypt</button><button id="decrypt-button" class="button button-secondary" type="button">Decrypt</button></div>
+      </section>
+      <section class="results" aria-live="polite"><article class="card result-card"><div class="result-label">OUTPUT</div><div id="output" class="output">—</div><p id="error" class="error" role="alert"></p></article><article class="card detail-card"><div class="result-label">CALCULATION</div><p id="detail">Enter a message and choose an operation.</p></article></section>
+      <footer><span>Educational only.</span> The Hill cipher is not secure for real secrets.</footer>
+    </main>
+    <script src="./app.js" defer></script>
+  </body>
+</html>
